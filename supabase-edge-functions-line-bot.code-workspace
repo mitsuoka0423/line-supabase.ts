@@ -21,7 +21,7 @@
     ],
     "editor.fontFamily": "\"jetbrains mono\", Menlo, Monaco, 'Courier New', monospace",
     "editor.renderWhitespace": "none",
-    "visibleWhitespace.htab.enable": false,
+    "visibleWhitespace.htab.enable": true,
     "visibleWhitespace.space.enable": true
   }
 }
