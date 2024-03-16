@@ -12,6 +12,16 @@
   "settings": {
     "files.exclude": {
       "supabase/functions/": true
-    }
+    },
+    "indentRainbow.colors": [
+      "rgba(255,255,64,0.15)",
+      "rgba(127,255,127,0.15)",
+      "rgba(255,127,255,0.15)",
+      "rgba(79,236,236,0.15)"
+    ],
+    "editor.fontFamily": "\"jetbrains mono\", Menlo, Monaco, 'Courier New', monospace",
+    "editor.renderWhitespace": "none",
+    "visibleWhitespace.htab.enable": false,
+    "visibleWhitespace.space.enable": true
   }
 }

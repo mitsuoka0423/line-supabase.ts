@@ -15,7 +15,9 @@
 				"eamodio.gitlens",
 				"donjayamanne.githistory",
 				"esbenp.prettier-vscode",
-				"denoland.vscode-deno"
+				"denoland.vscode-deno",
+				"oderwat.indent-rainbow",
+				"yoshi389111.visible-whitespace"
 			]
 		}
 	}
