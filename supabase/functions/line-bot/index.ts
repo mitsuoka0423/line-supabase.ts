@@ -5,7 +5,8 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { supabaseClient } from './supabaseClient.ts';
 import { Quiz } from './quiz.ts';
-import { replyMessage } from './messages.ts';
+import { flashCardMessage, replyMessage } from './messages.ts';
+import { shuffle } from './lib.ts';
 
 console.log('Hello from Functions!');
 
@@ -30,7 +31,21 @@ serve(async (req) => {
       },
     ];
 
-    if (events[0].message.text.match(/\//g)) {
+    if (events[0].message.text === 'スタート') {
+      const { data, error } = await supabaseClient(req)
+        .from('quiz')
+        .select('id,question,answer');
+      const quizList = shuffle(data).slice(0, 5);
+      // クイズを開始する
+      messages = [
+        {
+          type: 'text',
+          text: '問題を始めるよ！',
+        },
+        flashCardMessage(quizList[0].question, { list: quizList }),
+      ];
+      console.log({ messages, quizList });
+    } else if (events[0].message.text.match(/\//g)) {
       // MEMO:
       // 送られたメッセージの中に `/` が含まれている場合は文字列を分割して保存する
       const [question, answer] = events[0].message.text.split('/');
@@ -39,6 +54,30 @@ serve(async (req) => {
       messages = quiz.savedMessages();
     }
 
+    replyMessage(events, messages);
+  }
+
+  if (events && events[0]?.type === 'postback') {
+    const messages = [];
+    const postbackData = JSON.parse(events[0].postback.data);
+    let [first, ...list] = postbackData.list;
+
+    if (postbackData.action === 'nextCard') {
+      messages.push({
+        type: 'text',
+        text: `こたえは「${first.answer}」です`,
+      });
+      if (list.length > 0) {
+        messages.push(
+          flashCardMessage(list[0].question, { list: list }) // 続きの問題を返す
+        );
+      } else {
+        messages.push({
+          type: 'text',
+          text: `おわったよ！`,
+        });
+      }
+    }
     replyMessage(events, messages);
   }
 
