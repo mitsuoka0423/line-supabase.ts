@@ -2,31 +2,48 @@
 // https://deno.land/manual/getting_started/setup_your_environment
 // This enables autocomplete, go to definition, etc.
 
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { replyMessage } from "./messages.ts";
+import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
+import { supabaseClient } from './supabaseClient.ts';
+import { Quiz } from './quiz.ts';
+import { replyMessage } from './messages.ts';
 
-console.log("Hello from Functions!");
+console.log('Hello from Functions!');
 
 serve(async (req) => {
   const { events } = await req.json();
   console.log(events);
-  if (events && events[0]?.type === "message") {
+  if (events && events[0]?.type === 'message') {
     // 文字列化したメッセージデータ
     let messages: any = [
       {
-        type: "text",
-        text: "こんにちは！",
+        type: 'text',
+        text: 'こんにちは！',
       },
       {
-        type: "text",
-        text: "テスト / test で単語を登録できます",
+        type: 'text',
+        text: 'テスト / test で単語を登録できます',
+        sender: {
+          name: '実況お兄さん',
+          iconUrl:
+            'https://2.bp.blogspot.com/-Qlj91t78oGY/Us_MAKjaVFI/AAAAAAAAc_c/hLmCvD-VjB0/s40-c/job_sports_jikkyou.png',
+        },
       },
     ];
+
+    if (events[0].message.text.match(/\//g)) {
+      // MEMO:
+      // 送られたメッセージの中に `/` が含まれている場合は文字列を分割して保存する
+      const [question, answer] = events[0].message.text.split('/');
+      const quiz = new Quiz({ question, answer });
+      await quiz.saveToSupabase(supabaseClient(req));
+      messages = quiz.savedMessages();
+    }
+
     replyMessage(events, messages);
   }
 
-  return new Response(JSON.stringify({ status: "ok" }), {
-    headers: { "Content-Type": "application/json" },
+  return new Response(JSON.stringify({ status: 'ok' }), {
+    headers: { 'Content-Type': 'application/json' },
   });
 });
 
